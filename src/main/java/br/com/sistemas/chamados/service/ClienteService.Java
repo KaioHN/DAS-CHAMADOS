@@ -25,7 +25,41 @@
             if (repository.existsByEmail(dto.email())){
                 throw new RegraNegocioException("Já existe um cliente com o e-mail " + dto.email());
             }
-            
-            
+            Cliente salvo = repository.save(new Cliente(dto.nome(), dto.email(), dto.telefone()));
+                return ClienteResponse.de(salvo);
         }
-    }
+
+        @Transactional(readOnly = true)
+            public List<ClienteResponse> listar() {
+                return repository.findAll().stream().map(ClienteResponse::de).toList();
+        }
+
+
+        @Transactional(readOnly = true)
+            public ClienteResponse buscar(Long id) {
+            return ClienteResponse.de(buscarEntity(id));
+        }
+
+        @Transactional
+            public ClienteResponse atualizar(Long id, ClienteRequest dto) {
+                Cliente cliente = buscarEntity(id);
+                if(repository.existsByEmailAndIdNot(dto.email(), id)) {
+                    throw new RegraNegocioException("Já existe um cliente com esse email " + dto.email());
+                }
+                cliente.setNome(dto.nome());
+                cliente.setEmail(dto.email());
+                cliente.setTelefone(dto.telefone());
+            return ClienteResponse.de(cliente);
+            }
+
+        @Transactional
+            public void excluir(Long id) {
+                repository.delete(buscarEntity(id));
+            }
+
+            public Cliente buscarEntity(Long id) {
+                return repository.findById(id)
+                    .orElseThrow(() -> new RecursoNaoEncontradoException(
+                        "Cliente " + id + " não encontrado"));
+            }
+    }  
