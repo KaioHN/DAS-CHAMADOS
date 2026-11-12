@@ -28,7 +28,7 @@ public class ChamadoService {
     private final CategoriaService categoriaService;
     private final ClienteService clienteService;
 
-    ChamadoService(ChamadoRepository repository, TecnicoService tecnicoService, CategoriaService categoriaService, ClienteService clienteService) {
+    public ChamadoService(ChamadoRepository repository, TecnicoService tecnicoService, CategoriaService categoriaService, ClienteService clienteService) {
         this.repository = repository;
         this.tecnicoService = tecnicoService;
         this.categoriaService = categoriaService;
@@ -71,6 +71,7 @@ public class ChamadoService {
     @Transactional
     public ChamadoResponse atualizar(Long id, ChamadoRequest dto) {
         Chamado chamado = buscarEntity(id);
+        garantirNaoFechado(chamado);
         chamado.setTitulo(dto.titulo());
         chamado.setDescricao(dto.descricao());
         chamado.setPrioridade(dto.prioridade());
@@ -81,20 +82,21 @@ public class ChamadoService {
 
     @Transactional
     public ChamadoResponse atribuirTecnico(Long id, ChamadoAtribuirRequest dto) {
-        if (repository.existsByStatus(StatusChamado.FECHADO)) {
+        Chamado chamado = buscarEntity(id);
+        if (chamado.getStatus() == StatusChamado.FECHADO) {
             throw new RegraNegocioException("Não é possível atribuir um Técnico a um chamado Fechado");
         }
-        Chamado chamado = buscarEntity(id);
         chamado.setTecnico(tecnicoService.buscarEntity(dto.tecnicoId()));
         return ChamadoResponse.de(chamado);
     }
 
     @Transactional
     public ChamadoResponse alterarStatus(Long id, ChamadoStatusRequest dto) {
-        if (dto.status().equals(StatusChamado.FECHADO)) {
+        Chamado chamado = buscarEntity(id);
+        garantirNaoFechado(chamado);
+        if (dto.status() == StatusChamado.FECHADO) {
             throw new RegraNegocioException("Não é permitido alterar o status para Fechado");
         }
-        Chamado chamado = buscarEntity(id);
         chamado.setStatus(dto.status());
         return ChamadoResponse.de(chamado);
     }
@@ -102,6 +104,9 @@ public class ChamadoService {
     @Transactional
     public ChamadoResponse fechar(Long id) {
         Chamado chamado = buscarEntity(id);
+        if (chamado.getStatus() == StatusChamado.FECHADO) {
+            throw new RegraNegocioException("O chamado " + id + " já está Fechado");
+        }
         chamado.setDataFechamento(LocalDateTime.now());
         chamado.setStatus(StatusChamado.FECHADO);
         return ChamadoResponse.de(chamado);
@@ -110,6 +115,13 @@ public class ChamadoService {
     @Transactional
     public void excluir(Long id) {
         repository.delete(buscarEntity(id));
+    }
+
+    private void garantirNaoFechado(Chamado chamado) {
+        if (chamado.getStatus() == StatusChamado.FECHADO) {
+            throw new RegraNegocioException(
+                    "O chamado " + chamado.getId() + " está Fechado e não pode ser alterado");
+        }
     }
 
     public Chamado buscarEntity(Long id) {

@@ -21,11 +21,11 @@ import java.util.List;
 public class ClienteController {
 
     private final ClienteService service;
-    private final ChamadoService chamado;
+    private final ChamadoService chamadoService;
 
-    public ClienteController(ClienteService service , ChamadoService chamado) {
+    public ClienteController(ClienteService service, ChamadoService chamadoService) {
         this.service = service;
-        this.chamado = chamado;
+        this.chamadoService = chamadoService;
     }
 
     @PostMapping
@@ -45,7 +45,7 @@ public class ClienteController {
             @PathVariable Long id,
             @PageableDefault(sort = "dataCriacao", direction = Sort.Direction.DESC)
             Pageable pageable) {
-        return chamado.listarPorCliente(id, pageable);
+        return chamadoService.listarPorCliente(id, pageable);
     }
 
     @GetMapping("/{id}")

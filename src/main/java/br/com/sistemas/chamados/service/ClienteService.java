@@ -16,7 +16,7 @@ public class ClienteService {
 
     private final ClienteRepository repository;
 
-    ClienteService(ClienteRepository clienteRepository) {
+    public ClienteService(ClienteRepository clienteRepository) {
         this.repository = clienteRepository;
     }
 

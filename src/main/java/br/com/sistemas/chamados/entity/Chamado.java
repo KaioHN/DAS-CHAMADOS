@@ -48,7 +48,7 @@ public class Chamado {
     @JoinColumn(name = "categoria_id", nullable = false)
     private Categoria categoria;
 
-    @OneToMany(mappedBy = "chamado")
+    @OneToMany(mappedBy = "chamado", cascade = CascadeType.REMOVE)
     private List<Comentario> comentarios = new ArrayList<>();
 
     public Chamado() {

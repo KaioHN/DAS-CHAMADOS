@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 public record ComentarioRequest(
 
         @NotBlank(message = "Texto é obrigatório")
-        @Size(max = 100, message = "Nome deve ter no máximo 100 caracteres")
+        @Size(max = 1000, message = "Texto deve ter no máximo 1000 caracteres")
         String texto,
 
         @NotBlank(message = "Autor é obrigatório")

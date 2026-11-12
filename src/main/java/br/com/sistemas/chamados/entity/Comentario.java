@@ -12,18 +12,18 @@ public class Comentario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 100)
-    String texto;
+    @Column(nullable = false, length = 1000)
+    private String texto;
 
     @Column(nullable = false)
-    LocalDateTime data = LocalDateTime.now();
+    private LocalDateTime data = LocalDateTime.now();
 
     @Column(nullable = false, length = 100)
-    String autor;
+    private String autor;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chamado_id", nullable = false)
-    Chamado chamado;
+    private Chamado chamado;
 
     public Comentario() {
     }
